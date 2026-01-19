@@ -13,7 +13,7 @@ const ActivityLogsPage = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await api.get('/admin/logs', { params: { page: p, limit: 5 } });
+      const res = await api.get('/admin/logs', { params: { page: p, limit: 5, success: true } });
       setLogs(res.data.logs || []);
       setPage(res.data.page || 1);
       setTotalPages(res.data.totalPages || 1);
@@ -34,12 +34,14 @@ const ActivityLogsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Activity Logs</h2>
         {error && <span className="bg-red-100 text-red-700 px-3 py-1 rounded text-sm">{error}</span>}
       </div>
-      <LogList logs={logs} />
+      <div className="overflow-x-auto">
+        <LogList logs={logs} />
+      </div>
       <div className="flex items-center justify-between mt-4">
         <span className="text-sm text-gray-600">
           Page {page} of {totalPages}
@@ -79,4 +81,3 @@ const ActivityLogsPage = () => {
 };
 
 export default ActivityLogsPage;
-
