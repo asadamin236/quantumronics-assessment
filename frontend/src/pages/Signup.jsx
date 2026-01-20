@@ -37,9 +37,11 @@ const Signup = () => {
     setError('');
     try {
       await signup({ name, email, password });
+      alert('Account created successfully');
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Signup failed');
+      alert(err.message || 'Signup failed');
     }
   };
 

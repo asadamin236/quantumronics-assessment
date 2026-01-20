@@ -10,6 +10,7 @@ const UsersPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const load = async (p = 1) => {
     setLoading(true);
@@ -30,11 +31,18 @@ const UsersPage = () => {
     load(1);
   }, []);
 
+  useEffect(() => {
+    if (!success) return;
+    const t = setTimeout(() => setSuccess(''), 3000);
+    return () => clearTimeout(t);
+  }, [success]);
+
   const changeRole = async (id, role) => {
     if (user?.role === 'Manager') return;
     try {
       await api.patch(`/admin/users/${id}/role`, { role });
       await load(page);
+      setSuccess('Role updated successfully');
     } catch (e) {
       setError(e?.response?.data?.message || e.message || 'Failed to update role');
     }
@@ -44,7 +52,9 @@ const UsersPage = () => {
     if (user?.id === id) return;
     try {
       await api.delete(`/admin/users/${id}`);
+      setItems(items.filter((u) => u._id !== id));
       await load(page);
+      setSuccess('User deleted successfully');
     } catch (e) {
       setError(e?.response?.data?.message || e.message || 'Failed to delete user');
     }
@@ -54,6 +64,7 @@ const UsersPage = () => {
     try {
       await api.patch(`/admin/users/${id}/password`, { password });
       await load(page);
+      setSuccess('Password updated successfully');
     } catch (e) {
       setError(e?.response?.data?.message || e.message || 'Failed to update password');
       throw e;
@@ -64,6 +75,7 @@ const UsersPage = () => {
     try {
       await api.patch(`/admin/users/${id}`, payload);
       await load(page);
+      setSuccess('User updated successfully');
     } catch (e) {
       setError(e?.response?.data?.message || e.message || 'Failed to update user');
       throw e;
@@ -82,7 +94,10 @@ const UsersPage = () => {
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">User Management</h2>
-        {error && <span className="bg-red-100 text-red-700 px-3 py-1 rounded text-sm">{error}</span>}
+        <div className="flex gap-2">
+          {success && <span className="bg-green-100 text-green-700 px-3 py-1 rounded text-sm">{success}</span>}
+          {error && <span className="bg-red-100 text-red-700 px-3 py-1 rounded text-sm">{error}</span>}
+        </div>
       </div>
       <div className="overflow-x-auto">
         <UserTable
