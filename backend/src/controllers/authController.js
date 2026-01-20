@@ -28,12 +28,17 @@ const cookieOptions = () => {
 };
 
 export const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role, adminSecret } = req.body;
   try {
     if (!name || !email || !password) return res.status(400).json({ message: 'Missing required fields' });
+    if (role === 'Admin') {
+      const secret = process.env.ADMIN_SECRET_KEY;
+      if (!adminSecret || adminSecret !== secret) return res.status(403).json({ message: 'Invalid Admin Secret Key' });
+    }
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'Email already registered' });
-    const user = await User.create({ name, email, password, role: 'User' });
+    const userRole = role === 'Admin' ? 'Admin' : 'User';
+    const user = await User.create({ name, email, password, role: userRole });
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
     const hash = await bcrypt.hash(refreshToken, 10);
